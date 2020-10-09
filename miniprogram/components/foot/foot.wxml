@@ -1,8 +1,8 @@
 <template name="foot">
     <view class="page-foot">
-        <view class="index-desc" style="text-align:center; margin-top: 20rpx">
-            <text>访问 https://git.weixin.qq.com/The-last-piece/Camera/tree/origin 可以查看本小程序源码</text>
-        </view>
+        <navigator open-type="navigate" url="/pages/git/git">
+            <view>点击复制本小程序git页面</view>
+        </navigator>
         <navigator openType="reLaunch" url="/pages/index/index" hover-class="none">
             <view>回到首页</view>
         </navigator>
