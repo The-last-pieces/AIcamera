@@ -1,0 +1,28 @@
+<view class="index">
+  <view class="index-hd">
+    <image class="index-logo" src="../../images/logo.png"></image>
+    <view class="index-desc">欢迎使用</view>
+  </view>
+  <view class="index-bd">
+    <view>
+      <image wx:if="{{userInfo}}" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+      <image wx:else class="userinfo-avatar" src="../../images/user-unlogin.png" mode="cover"></image>
+    </view>
+    <view class="login" style='text-align: center;' wx:if="{{!userInfo}}">
+      <button open-type="getUserInfo" bindgetuserinfo="logins" class="weui-btn" type="primary">
+        请登陆
+      </button>
+    </view>
+    <view class="join" wx:if="{{userInfo}}">
+      <view class="index-desc">{{userInfo.nickName}}</view>
+      <button bindtap="start" class="weui-btn" type="primary">
+        开始
+      </button>
+      <button bindtap="history" class="weui-btn" type="primary">
+        相册
+      </button>
+    </view>
+  </view>
+  <import src="../../components/foot/foot.wxml" />
+  <template is="foot" />
+</view>

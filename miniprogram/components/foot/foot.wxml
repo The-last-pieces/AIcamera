@@ -1,0 +1,10 @@
+<template name="foot">
+    <view class="page-foot">
+        <view class="index-desc" style="text-align:center; margin-top: 20rpx">
+            <text>访问 http://www.baidu.com 可以查看本小程序源码</text>
+        </view>
+        <navigator openType="reLaunch" url="/pages/index/index" hover-class="none">
+            <view>回到首页</view>
+        </navigator>
+    </view>
+</template>

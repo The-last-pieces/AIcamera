@@ -1,0 +1,16 @@
+@import "../../components/foot/common.wxss";
+
+button:not([size='mini']) {
+  display: inline-block;
+  width: 45%;
+  margin: 0 1%;
+  font-size: 35rpx;
+}
+
+.form-container {
+  margin-top: 40rpx;
+}
+
+.image-container canvas {
+  width: 100%;
+}
