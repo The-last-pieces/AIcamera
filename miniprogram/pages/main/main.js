@@ -89,6 +89,15 @@ Page({
 
                 uploadToCloud(temUrl).then(
                     res => {
+                        //上传到数据库中
+                        const db = wx.cloud.database().collection('history');
+                        db.add({
+                            data: {
+                                timestamp: Date.now(),
+                                fileID: res.fileID
+                            }
+                        });
+                        //获取图片信息
                         wx.getImageInfo({
                             src: res.fileID,
                             success: suc => {
@@ -117,7 +126,6 @@ Page({
                         });
                     }
                 ).catch(e => {
-
                     wx.hideLoading();
                 });
             }

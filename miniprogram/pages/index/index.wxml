@@ -16,10 +16,10 @@
     <view class="join" wx:if="{{userInfo}}">
       <view class="index-desc">{{userInfo.nickName}}</view>
       <button bindtap="start" class="weui-btn" type="primary">
-        开始
+        进入相机
       </button>
       <button bindtap="history" class="weui-btn" type="primary">
-        相册
+        历史记录
       </button>
     </view>
   </view>

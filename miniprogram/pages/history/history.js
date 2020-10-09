@@ -1,18 +1,33 @@
 // miniprogram/pages/history/history.js
+
+import {
+    timestampToDate
+} from "../../utils/tools";
+
 Page({
 
     /**
      * 页面的初始数据
      */
     data: {
-
+        collect: []
     },
 
     /**
      * 生命周期函数--监听页面加载
      */
     onLoad: function (options) {
-
+        const db = wx.cloud.database().collection('history');
+        db.get().then(res => {
+            this.setData({
+                collect: res.data.map(v => {
+                    return {
+                        time: timestampToDate(v.timestamp), //转日期
+                        fileID: v.fileID
+                    }
+                })
+            })
+        })
     },
 
     /**

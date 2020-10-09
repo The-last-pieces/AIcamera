@@ -13,8 +13,8 @@
         </block>
     </view>
     <view class="button-container">
-        <button type="primary" bindtap="handleUploadTap">上传人脸</button>
-        <button type="primary" disabled="{{!hasUploaded}}" bindtap="handleRecognizeTap">开始识别</button>
+        <button type="primary" bindtap="handleUploadTap">上传图片</button>
+        <button type="primary" disabled="{{!hasUploaded}}" bindtap="handleRecognizeTap">识别人脸</button>
         <button type="primary" disabled="{{!hasUploaded}}" bindtap="handleFilterTap">
             添加滤镜
         </button>

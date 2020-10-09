@@ -1,2 +1,9 @@
 <!--miniprogram/pages/history/history.wxml-->
-<text>miniprogram/pages/history/history.wxml</text>
+<view class="container">
+    <block wx:for="{{collect}}" wx:key="fileID">
+        <view class="image-container">
+            <image class="image" src="{{item.fileID}}" mode="widthFix"></image>
+            <text>{{item.time}}</text>
+        </view>
+    </block>
+</view>

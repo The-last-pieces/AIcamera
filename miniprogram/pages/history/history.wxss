@@ -1,1 +1,11 @@
 /* miniprogram/pages/history/history.wxss */
+.image-container {
+    position: relative;
+    width: 600rpx;
+    margin: 30rpx auto 50rpx;
+}
+
+.image {
+    display: block;
+    width: 100%;
+}
