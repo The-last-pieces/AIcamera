@@ -13,10 +13,10 @@ Page({
      */
     onLoad: function (options) {
         wx.setClipboardData({
-          data: 'https://git.weixin.qq.com/The-last-piece/Camera/tree/origin',
+            data: 'https://github.com/The-last-pieces/AIcamera',
         });
         wx.navigateBack({
-          delta: 0,
+            delta: 0
         });
     },
 

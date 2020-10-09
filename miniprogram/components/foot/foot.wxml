@@ -1,7 +1,7 @@
 <template name="foot">
     <view class="page-foot">
         <navigator open-type="navigate" url="/pages/git/git">
-            <view>点击复制本小程序git页面</view>
+            <view>点击复制本小程序github链接</view>
         </navigator>
         <navigator openType="reLaunch" url="/pages/index/index" hover-class="none">
             <view>回到首页</view>
