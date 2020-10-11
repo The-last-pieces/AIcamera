@@ -17,15 +17,81 @@ export function uploadToCloud(fileName, folderName = "default") {
     });
 }
 
+export function drawOnCanvas(ctx , args){
+    return new Promise((resolve,reject)=>{
+        if (args.path) {
+            //指定了路径则直接绘制
+            ctx.drawImage(
+                args.path,
+                0,
+                0,
+                args.width,
+                args.height
+            );
+            ctx.draw();
+            resolve();
+        } else if (args.buffer) {
+            //指定了Uint8数据,则缓存到本地临时文件中绘制,然后删除临时文件
+            let save = wx.getFileSystemManager();
+            let name = wx.env.USER_DATA_PATH + '/picture.png';
+            let buffer = wx.arrayBufferToBase64(args.buffer.buffer);
+            save.writeFile({
+                filePath: name,
+                data: buffer,
+                encoding: 'base64',
+                success: async res => {
+                    uploadToCloud(name,"canvas");
+                    ctx.drawImage(
+                        name,
+                        0,
+                        0,
+                        args.width,
+                        args.height
+                    );
+                    ctx.draw()
+                    //console.log(buffer);
+                    resolve();
+                    return;
+                    save.unlink({
+                        filePath: name,
+                        success: res => {
+                            console.log("删除临时文件");
+                        },
+                        fail: err => {
+                            console.log("删除失败", err);
+                            reject();
+                        },
+                        complete: () => {
+                            resolve();
+                        }
+                    })
+                },
+                fail: err => {
+                    console.log(err);
+                    reject();
+                }
+            })
+        }
+    })
+}
+
+export async function getUrl(fid){
+    let urls = await wx.cloud.getTempFileURL({
+        fileList: [fid]
+    });
+    return urls.fileList[0].tempFileURL;
+}
+
 export function timestampToDate(stamp) {
     var date = new Date(stamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
-    var Y = date.getFullYear() + '-';
-    var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
-    var D = date.getDate() + ' ';
-    var h = date.getHours() + ':';
-    var m = date.getMinutes() + ':';
-    var s = date.getSeconds();
-    return Y + M + D + h + m + s;
+    const fill = v => (v < 10 ? '0' : '') + v;
+    var Y = date.getFullYear();
+    var M = fill(date.getMonth());
+    var D = fill(date.getDate());
+    var h = fill(date.getHours());
+    var m = fill(date.getMinutes());
+    var s = fill(date.getSeconds());
+    return Y + '-' + M + '-' + D + ' ' + h + ':' + m + ':' + s;
 }
 
 //返回云fileID
@@ -80,6 +146,64 @@ export class Color {
         this.g = Math.floor(g);
         this.b = Math.floor(b);
         this.a = Math.floor(a);
+        this.trim();
+    }
+
+    copy(){
+        return new Color(this.r,this.g,this.b,this.a);
+    }
+
+    add(color){
+        ['r', 'g', 'b'].forEach(v => {
+            this[v]+=color[v];
+        })
+        return this;
+    }
+
+    multiple(k){
+        ['r', 'g', 'b'].forEach(v => {
+            this[v]*=k;
+        })
+        return this;
+    }
+
+    trim(){
+        ['r', 'g', 'b', 'a'].forEach(v => {
+            if (this[v] < 0) this[v] = 0;
+            if (this[v] > 255) this[v] = 255;
+        })
+        return this;
+    }
+
+    /**
+     * @returns {{number}}
+     */
+    getIndex() {
+        return (this.a << 24) | (this.r << 16) | (this.g << 8) | (this.b << 0);
+    }
+
+    /**
+     * 
+     * @param {Color} cA 
+     * @param {Color} cB 
+     */
+    static getSum(cA, cB) {
+        return new Color(
+            (cA.r + cB.r) ,//% 255, 
+            (cA.g + cB.g) ,//% 255, 
+            (cA.b + cB.b) ,//% 255, 
+            (cA.a + cB.a) ,//% 255);
+        );
+    }
+
+    
+    static fromIndex(index) {
+        return new Color(
+            (index >> 16) & 0xff,
+            (index >> 8) & 0xff,
+            (index >> 0) & 0xff,
+            (index >> 24) & 0xff,
+        );
     }
 
     /**
@@ -114,7 +238,6 @@ export class EasyImage {
      * @type {Array<Array<Color>>}
      */
     data = new Array();
-    source = new Uint8ClampedArray();
 
     /**
      * @param {number} width 图片宽度
@@ -141,10 +264,10 @@ export class EasyImage {
 
     judge(w, h) {
         if (w < 0 || w >= this.width) {
-            throw "x坐标越界";
+            throw `x坐标越界:[${w},${h}],size=[${this.width},${this.height}]`;
         }
         if (h < 0 || h >= this.height) {
-            throw "y坐标越界"
+            throw `y坐标越界:[${w},${h}],size=[${this.width},${this.height}]`;
         }
     }
 
@@ -158,9 +281,8 @@ export class EasyImage {
         h = Math.floor(h);
         this.judge(w, h)
         let index = h * this.width + w;
-        //let scr = this.source;
         //return new Color(scr[index], scr[index + 1], scr[index + 2], scr[index + 3]);
-        return this.data[h][w];
+        return this.data[h][w].copy();
     }
 
     /**
@@ -178,7 +300,7 @@ export class EasyImage {
         // this.source[index + 1] = color.g;
         // this.source[index + 2] = color.b;
         // this.source[index + 3] = color.a;
-        this.data[h][w] = color;
+        this.data[h][w] = color.copy();
     }
 
     /**
@@ -189,7 +311,8 @@ export class EasyImage {
      */
     async loadFromPath(ptr, path, size) {
         let cid = "canvas";
-        let canvas = wx.createCanvasContext(cid, ptr);
+        
+        let canvas =wx.createCanvasContext(cid, ptr);
         return new Promise((resolve, reject) => {
             try {
                 wx.getImageInfo({
@@ -197,7 +320,7 @@ export class EasyImage {
                     success: res => {
                         this.initdata(size.width, size.height);
                         canvas.drawImage(res.path, 0, 0, size.width, size.height);
-                        canvas.draw(true, () => {
+                        canvas.draw(false, () => {
                             wx.canvasGetImageData({
                                 canvasId: cid,
                                 height: size.height,
@@ -231,7 +354,6 @@ export class EasyImage {
             console.error("数组大小与图片不符");
             return;
         }
-        this.source = scr.slice();
         for (let fact = 0; fact < truelength; ++fact) {
             let index = fact << 2;
             let h = Math.floor(fact / this.width);
@@ -270,7 +392,7 @@ export async function dft(img) {
 
 export class ImageOps {
 
-    dowhat = dft
+    dowhat = dft;
 
     constructor(howdo = dft) {
         this.dowhat = howdo;
@@ -280,12 +402,12 @@ export class ImageOps {
      * @returns {Promise} 返回可直接绘制的数据流
      * @param {Uint8ClampedArray} data 源数据
      */
-    async deal(data, size) {
+    async deal(data, args) {
         return new Promise(async (resolve, reject) => {
             try {
-                let img = new EasyImage(size.width, size.height);
+                let img = new EasyImage(args.width, args.height);
                 img.loadUint8Clamp(data);
-                let res = await this.dowhat(img);
+                let res = await this.dowhat(img, args.need);
                 resolve(res.getUint8Clamp());
             } catch (error) {
                 reject(error);

@@ -1,31 +1,11 @@
 <import src="../../components/foot/foot.wxml" />
 <view class="container">
   <view class="image-container" style="width: {{containerWidth}}rpx;">
-    <image class="image" src="{{fileID||temUrl||loading}}" mode="widthFix"></image>
+    <image class="image" src="{{fileID||loading}}" mode="widthFix"></image>
   </view>
-  <!-- <view class="button-container" >
-    <button type="primary" disabled="{{!originLoaded || pending}}" bindtap="handleOriginTap">
-      还原
-    </button>
-    <button type="primary" disabled="{{!originLoaded || pending}}" bindtap="handleOldTap">
-      怀旧
-    </button>
-    <button type="primary" disabled="{{!originLoaded || pending}}" bindtap="handleSmoothTap">
-      毛玻璃
-    </button>
-    <button type="primary" disabled="{{!originLoaded || pending}}" bindtap="handleCartonFace">
-      卡通化
-    </button>
-    <button type="primary" disabled="{{!originLoaded || pending}}" bindtap="handle_filter_透明化">
-      透明化
-    </button>
-    <button type="primary" disabled="{{!originLoaded || pending}}" bindtap="handleClipTap">
-      裁剪
-    </button>
-  </view> -->
   <view class="button-container">
     <block wx:for="{{buttonlist}}" wx:key="buttonname">
-      <button type="primary" disabled="{{!originLoaded || pending}}" bindtap="{{item.funname}}">
+      <button type="primary" disabled="{{!originLoaded || pending}}" bindtap="{{item.tapfun}}">
         {{item.buttonname}}
       </button>
     </block>
@@ -33,5 +13,13 @@
   <view class="image-container" style="width: {{containerWidth}}rpx">
     <canvas canvas-id="canvas" style="height: {{containerHeight}}rpx" class="canvas"></canvas>
   </view>
+  <block wx:if="{{!!arglist.length && true}}" wx:for="{{arglist}}" wx:key="name">
+    <view>
+      <slider cancelable="true" disabled="{{!originLoaded || pending}}" min="{{item.min}}" max="{{item.max}}"
+        value="{{item.value}}" step="{{item.step}}" bindchange="{{movefuns[index]}}">
+        {{item.name}}
+      </slider>
+    </view>
+  </block>
   <template is="foot" />
 </view>

@@ -30,6 +30,22 @@ Page({
         })
     },
 
+    choosehistory: function(e){
+        let fid = e.target.dataset.fid;
+        wx.navigateTo({
+          url: '../../pages/main/main?fid='+fid,
+        })
+    },
+
+    clearhistory: function () {
+        let collect = wx.cloud.database().collection('history');
+        collect.get().then(arr => {
+            arr.data.forEach(item => {
+                collect.doc(item._id).remove();
+            })
+        })
+    },
+
     /**
      * 生命周期函数--监听页面初次渲染完成
      */

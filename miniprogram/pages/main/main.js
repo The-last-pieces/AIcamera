@@ -54,6 +54,39 @@ Page({
             }
         }
     },
+
+    onLoad(options){
+        if ("fid" in options) {
+            this.loadimage(options.fid);
+        }
+    },
+
+    loadimage: function(fid){
+        //获取图片信息
+        wx.showLoading({
+            title: '加载中',
+        })
+        wx.getImageInfo({
+            src: fid,
+            success: suc => {
+                this.setData({
+                        fileID: fid,
+                        hasUploaded: true,
+                        imgrect: {
+                            imageHeight: suc.height,
+                            imageWidth: suc.width
+                        },
+                        //清空上次的结果
+                        faceRects: []
+                    },
+                    () => {
+                        wx.hideLoading();
+                    }
+                );
+            }
+        })
+    },
+
     async handleUploadTap() {
         await this.uploadImage();
     },
@@ -65,7 +98,6 @@ Page({
     async handleFilterTap() {
         var app = getApp();
         app.globalData.fileID = this.data.fileID;
-        app.globalData.temUrl = this.data.temUrl;
         app.globalData.rect = this.data.imgrect;
 
         wx.navigateTo({
@@ -79,13 +111,6 @@ Page({
             count: 1,
             success: dRes => {
                 let temUrl = dRes.tempFilePaths[0];
-                this.setData({
-                    temUrl
-                });
-
-                wx.showLoading({
-                    title: "上传中"
-                });
 
                 uploadToCloud(temUrl).then(
                     res => {
@@ -98,35 +123,16 @@ Page({
                             }
                         });
                         //获取图片信息
-                        wx.getImageInfo({
-                            src: res.fileID,
-                            success: suc => {
-                                this.setData({
-                                        fileID: res.fileID,
-                                        hasUploaded: true,
-                                        imgrect: {
-                                            imageHeight: suc.height,
-                                            imageWidth: suc.width
-                                        },
-                                        //清空上次的结果
-                                        faceRects: []
-                                    },
-                                    () => {
-                                        wx.hideLoading();
-                                    }
-                                );
-                            }
-                        })
+                        this.loadimage(res.fileID);
                     },
                     e => {
-                        wx.hideLoading();
                         wx.showToast({
                             title: "上传失败",
                             icon: "none"
                         });
                     }
                 ).catch(e => {
-                    wx.hideLoading();
+                    //wx.hideLoading();
                 });
             }
         });
@@ -193,4 +199,5 @@ Page({
         }
         console.log(e.detail);
     }
+
 });
