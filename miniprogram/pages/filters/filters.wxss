@@ -2,7 +2,7 @@
 
 button:not([size='mini']) {
   display: inline-block;
-  width: 45%;
+  width: 44%;
   margin: 0 1%;
   font-size: 35rpx;
 }

@@ -34,7 +34,7 @@
     },
     "appid": "wxc9aa6a0681bd35bd",
     "projectname": "yuncamera",
-    "libVersion": "2.8.1",
+    "libVersion": "2.9.4",
     "simulatorType": "wechat",
     "simulatorPluginLibVersion": {},
     "cloudfunctionTemplateRoot": "cloudfunctionTemplate",

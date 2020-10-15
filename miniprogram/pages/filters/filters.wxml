@@ -11,7 +11,7 @@
     </block>
   </view>
   <view class="image-container" style="width: {{containerWidth}}rpx">
-    <canvas canvas-id="canvas" style="height: {{containerHeight}}rpx" class="canvas"></canvas>
+    <canvas canvas-id="canvas" style="width: {{canvasWidthPx}} ; height: {{canvasHeightPx}}px" class="canvas"></canvas>
   </view>
   <block wx:if="{{!!arglist.length && true}}" wx:for="{{arglist}}" wx:key="name">
     <view>
@@ -21,5 +21,6 @@
       </slider>
     </view>
   </block>
+  <button bindtap="handleClipTap">裁剪</button>
   <template is="foot" />
 </view>

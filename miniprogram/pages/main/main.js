@@ -148,9 +148,9 @@ Page({
             let {
                 result
             } = await wx.cloud.callFunction({
-                name: "detectfact",
+                name: "detectface",
                 data: {
-                    id: this.data.fileID
+                    id: this.data.fileID,
                 }
             });
             wx.hideLoading();

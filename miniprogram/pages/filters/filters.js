@@ -64,61 +64,66 @@ Page({
             canvasWidthPx,
             canvasHeightPx,
             containerHeight
+        }, () => {
+            // 加载
+            this.pending(true);
+            let ctx = wx.createCanvasContext('canvas');
+            getUrl(this.data.fileID).then(temp => {
+                wx.getImageInfo({
+                    src: temp,
+                    success: (res) => {
+                        ctx.drawImage(
+                            res.path,
+                            0,
+                            0,
+                            this.data.rect.imageWidth,
+                            this.data.rect.imageHeight,
+                            0,
+                            0,
+                            canvasWidthPx,
+                            canvasHeightPx
+                        );
+                        ctx.draw(true, () => {
+                            // 获取画布上的像素信息
+                            wx.canvasGetImageData({
+                                canvasId: "canvas",
+                                x: 0,
+                                y: 0,
+                                width: canvasWidthPx,
+                                height: canvasHeightPx,
+                                success: ({
+                                    width,
+                                    height,
+                                    data
+                                }) => {
+                                    originImageData = {
+                                        width,
+                                        height,
+                                        data
+                                    };
+                                    resultImageData = {
+                                        width,
+                                        height,
+                                        data
+                                    };
+                                    this.setData({
+                                        originLoaded: true
+                                    });
+                                },
+                                fail: e => {
+                                    console.log(e);
+                                },
+                                complete: () => {
+                                    this.pending(false);
+                                }
+                            }, this);
+                        });
+                    },
+                })
+            })
         });
 
-        // 加载
-        this.pending(true);
-        let ctx = wx.createCanvasContext(`canvas`, this);
-        getUrl(this.data.fileID).then(temp=>{
-            ctx.drawImage(
-                temp,
-                0,
-                0,
-                this.data.rect.imageWidth,
-                this.data.rect.imageHeight,
-                0,
-                0,
-                canvasWidthPx,
-                canvasHeightPx
-            );
-            ctx.draw(false, () => {
-                setTimeout(() => {
-                    // 获取画布上的像素信息
-                    wx.canvasGetImageData({
-                        canvasId: "canvas",
-                        x: 0,
-                        y: 0,
-                        width: canvasWidthPx,
-                        height: canvasHeightPx,
-                        success: ({
-                            width,
-                            height,
-                            data
-                        }) => {
-                            originImageData = {
-                                width,
-                                height,
-                                data
-                            };
-                            resultImageData = {
-                                width,
-                                height,
-                                data
-                            };
-                            this.setData({
-                                originLoaded: true
-                            });
-                        },
-                        fail: e => {
-                            console.log(e);
-                        },
-                        complete: () => {
-                            this.pending(false);
-                        }
-                    });
-                }, 200);
-            });
-        })
+        
     },
 
     regbuttons() {
@@ -247,6 +252,31 @@ Page({
             max:255,
             min:0
         });
+        this.register("色彩丰富度",(img,args)=>{
+            img.data.forEach(i => {
+                i.forEach(j => {
+                    ['r', 'g', 'b'].forEach((v, i) => {
+                        j[v] = Math.floor(j[v] * ((args[i] + 255 * 0.5) / 255));
+                    })
+                })
+            });
+            return img;
+        },[{
+            name:"R",
+            density:255,
+            max:255,
+            min:0
+        },{
+            name:"G",
+            density:255,
+            max:255,
+            min:0
+        },{
+            name:"B",
+            density:255,
+            max:255,
+            min:0
+        }])
         this.register("高色差", (img, args) => {
             let colors = []
             let wdensity = args[0];
@@ -381,45 +411,29 @@ Page({
                 height,
                 need: that.data.argpos.map(v => v)
             }).then(data => {
-                // drawOnCanvas(wx.createCanvasContext('canvas', that), {
-                //     width,
-                //     height,
-                //     buffer: data
-                // }).then(()=>{
-                //     resultImageData = {
-                //         width,
-                //         height,
-                //         data: data
-                //     }
-                //     //console.log(data);
-                //     that.pending(false);
-                // })
-                // return;
                 // 将处理后的图片输出到画布
-                //wx.createCanvasContext('canvas', that).draw(true, () => {
-                    wx.canvasPutImageData({
-                        canvasId: "canvas",
-                        x: 0,
-                        y: 0,
-                        width: width,
-                        height: height,
-                        data: data,
-                        success: data => {
-                            resultImageData = {
-                                width,
-                                height,
-                                data: data
-                            };
-                        },
-                        fail: e => {
-                            console.error(e);
-                        },
-                        complete: () => {
-                            // 绘制完成
-                            that.pending(false);
-                        }
-                    }, that);
-                //})
+                wx.canvasPutImageData({
+                    canvasId: "canvas",
+                    x: 0,
+                    y: 0,
+                    width: width,
+                    height: height,
+                    data: data,
+                    success: data => {
+                        resultImageData = {
+                            width,
+                            height,
+                            data: data
+                        };
+                    },
+                    fail: e => {
+                        console.error(e);
+                    },
+                    complete: () => {
+                        // 绘制完成
+                        that.pending(false);
+                    }
+                }, that);
             }).catch(e => {
                 that.pending(false);
                 wx.showModal({
@@ -428,7 +442,6 @@ Page({
                 });
                 console.error(e);
             })
-
         }
 
         let movefuns = [];
@@ -488,7 +501,7 @@ Page({
                 app.globalData.filterTemUrl = tempFilePath;
                 console.log(tempFilePath);
                 wx.navigateTo({
-                    url: "/pages/clip/index"
+                    url: "../../pages/clip/clip"
                 });
             }
         });

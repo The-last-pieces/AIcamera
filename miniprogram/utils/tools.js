@@ -17,63 +17,6 @@ export function uploadToCloud(fileName, folderName = "default") {
     });
 }
 
-export function drawOnCanvas(ctx , args){
-    return new Promise((resolve,reject)=>{
-        if (args.path) {
-            //指定了路径则直接绘制
-            ctx.drawImage(
-                args.path,
-                0,
-                0,
-                args.width,
-                args.height
-            );
-            ctx.draw();
-            resolve();
-        } else if (args.buffer) {
-            //指定了Uint8数据,则缓存到本地临时文件中绘制,然后删除临时文件
-            let save = wx.getFileSystemManager();
-            let name = wx.env.USER_DATA_PATH + '/picture.png';
-            let buffer = wx.arrayBufferToBase64(args.buffer.buffer);
-            save.writeFile({
-                filePath: name,
-                data: buffer,
-                encoding: 'base64',
-                success: async res => {
-                    uploadToCloud(name,"canvas");
-                    ctx.drawImage(
-                        name,
-                        0,
-                        0,
-                        args.width,
-                        args.height
-                    );
-                    ctx.draw()
-                    //console.log(buffer);
-                    resolve();
-                    return;
-                    save.unlink({
-                        filePath: name,
-                        success: res => {
-                            console.log("删除临时文件");
-                        },
-                        fail: err => {
-                            console.log("删除失败", err);
-                            reject();
-                        },
-                        complete: () => {
-                            resolve();
-                        }
-                    })
-                },
-                fail: err => {
-                    console.log(err);
-                    reject();
-                }
-            })
-        }
-    })
-}
 
 export async function getUrl(fid){
     let urls = await wx.cloud.getTempFileURL({
