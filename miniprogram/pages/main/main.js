@@ -1,6 +1,6 @@
 /* global getApp, Page */
 import {
-    uploadToCloud
+    uploadToCloud, getUrl
 } from "../../utils/tools";
 import regeneratorRuntime from "../../libs/runtime";
 
@@ -150,11 +150,11 @@ Page({
             } = await wx.cloud.callFunction({
                 name: "detectface",
                 data: {
-                    id: this.data.fileID,
+                    id: await getUrl(this.data.fileID),
                 }
             });
             wx.hideLoading();
-            if (!result.code && result.data) {
+            if (!result.code && result.data)  {
                 this.setData({
                         faceRects: this.getFaceRects(result.data)
                     },

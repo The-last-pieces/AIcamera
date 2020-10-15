@@ -21,6 +21,5 @@
       </slider>
     </view>
   </block>
-  <button bindtap="handleClipTap">裁剪</button>
   <template is="foot" />
 </view>

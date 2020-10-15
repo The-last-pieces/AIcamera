@@ -6,16 +6,7 @@ cloud.init({
     env: 'yun-camera-2goai5iv8534a6e0'
 })
 
-async function getUrl(fid){
-    let urls = await cloud.getTempFileURL({
-        fileList: [fid]
-    });
-    return urls.fileList[0].tempFileURL;
-}
-
-async function FaceDetect(fid) {
-    //首先根据file-id获取真实url
-    let url = getUrl(fid);
+async function FaceDetect(url) {
     //准备参数
     const IaiClient = tencentcloud.iai.v20180301.Client;
     const models = tencentcloud.iai.v20180301.Models;

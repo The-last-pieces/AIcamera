@@ -365,6 +365,7 @@ Page({
             min: 2,
             max: 8
         });
+        this.register_byfname("裁剪","handleClipTap");
 
         //注册完毕
         this.setData({
@@ -479,6 +480,13 @@ Page({
         }
     },
 
+    register_byfname(buttonname, functionname) {
+        this.data.buttonlist.push({
+            tapfun: functionname,
+            buttonname
+        });
+    },
+
     handleClipTap() {
         let app = getApp();
         app.globalData.filterImageInfo = {
@@ -499,7 +507,6 @@ Page({
                 tempFilePath
             }) => {
                 app.globalData.filterTemUrl = tempFilePath;
-                console.log(tempFilePath);
                 wx.navigateTo({
                     url: "../../pages/clip/clip"
                 });
